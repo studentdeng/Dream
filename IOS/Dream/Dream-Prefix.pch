@@ -1,0 +1,22 @@
+//
+// Prefix header for all source files of the 'Dream' target in the 'Dream' project
+//
+
+#import <Availability.h>
+
+#ifndef __IPHONE_4_0
+#warning "This project uses features only available in iOS SDK 4.0 and later."
+#endif
+
+#ifdef __OBJC__
+    #import <UIKit/UIKit.h>
+    #import <Foundation/Foundation.h>
+#endif
+
+#import "ECSlidingViewController.h"
+#import "MenuViewController.h"
+#import "CURestkit.h"
+#import "API.h"
+#import "JSON.h"
+
+#define MUSIC_PROGRESS_RECENTLY @"curer.english.recentlyplayed"
