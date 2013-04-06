@@ -13,10 +13,15 @@
 
 #import "WBNoticeView.h"
 #import "WBSuccessNoticeView.h"
+#import "TimeFormatter.h"
+#import "BlockAlertView.h"
+
+#define ENGLISH_PROGRESS_ID @"1"
 
 @interface EnglishViewController ()
 
 @property (nonatomic, retain) MPMediaItemCollection *recentlyItem;
+@property (nonatomic, retain) NSDate *beginDate;
 
 @end
 
@@ -131,6 +136,9 @@
 - (void)viewDidUnload {
     [self setSongNameLabel:nil];
     [self setWebView:nil];
+    [self setPlayButton:nil];
+    [self setCaptureButton:nil];
+    [self setProgressBeginTimeLabel:nil];
     [super viewDidUnload];
 }
 
@@ -141,27 +149,44 @@
 }
 
 - (IBAction)captureClicked:(id)sender {
-    if (![UIImagePickerController isSourceTypeAvailable:
-          UIImagePickerControllerSourceTypeCamera]) {
-        
-        //don't have camera
-        UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"alert"
-                                                            message:@"don't have any camera"
-                                                           delegate:nil
-                                                  cancelButtonTitle:@"ok"
-                                                  otherButtonTitles:nil];
-        
-        [alertView show];
-        
-        return;
-    }
     
-    UIImagePickerController *picker = [[UIImagePickerController alloc] init];
-    picker.delegate = self;
-    picker.sourceType = UIImagePickerControllerSourceTypeCamera;
-    picker.allowsEditing = NO;
-    picker.modalTransitionStyle = UIModalTransitionStyleCoverVertical;
-    [self presentModalViewController:picker animated:YES];
+    BlockAlertView *alert = [BlockAlertView alertWithTitle:@"info"
+                                                   message:@"have u finished this progress?"];
+    [alert addButtonWithTitle:@"sure"
+                        block:^{
+                            if (![UIImagePickerController isSourceTypeAvailable:
+                                  UIImagePickerControllerSourceTypeCamera]) {
+                                
+                                //don't have camera
+                                UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"alert"
+                                                                                    message:@"don't have any camera"
+                                                                                   delegate:nil
+                                                                          cancelButtonTitle:@"ok"
+                                                                          otherButtonTitles:nil];
+                                
+                                [alertView show];
+                                
+                                return;
+                            }
+                            
+                            UIImagePickerController *picker = [[UIImagePickerController alloc] init];
+                            picker.delegate = self;
+                            picker.sourceType = UIImagePickerControllerSourceTypeCamera;
+                            picker.allowsEditing = NO;
+                            picker.modalTransitionStyle = UIModalTransitionStyleCoverVertical;
+                            [self presentModalViewController:picker animated:YES];
+                        }];
+    
+    [alert setCancelButtonWithTitle:@"not yet"
+                              block:^{
+                                  
+                              }];
+    [alert show];
+}
+
+- (IBAction)playButtonClicked:(id)sender {
+    self.beginDate = [NSDate date];
+    self.progressBeginTimeLabel.text = [NSString stringWithFormat:@"start at %@", [TimeFormatter formatTime:self.beginDate]];
 }
 
 - (void)imagePickerController:(UIImagePickerController *)picker
@@ -172,22 +197,68 @@ didFinishPickingMediaWithInfo:(NSDictionary *)info {
     
     //UIImageWriteToSavedPhotosAlbum(thumbImage, nil, nil,nil);
     NSData *imageData = UIImageJPEGRepresentation(thumbImage, 1);
+    [self requestToServerUpload:imageData];
     
+    [picker dismissModalViewControllerAnimated:YES];
+}
+
+- (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker
+{
+}
+
+#pragma mark - server
+
+- (void)requestToServerUpload:(NSData *)imageData
+{
     [[API shareObjectManager] post:UPLOAD_FILE
                          userBlock:^(ASIFormDataRequest *ASIRequest) {
-                            [ASIRequest setData:imageData
-                                   withFileName:@"test.jpg"
-                                 andContentType:@"image/jpeg"
-                                         forKey:@"image"];
+                             [ASIRequest setData:imageData
+                                    withFileName:@"test.jpg"
+                                  andContentType:@"image/jpeg"
+                                          forKey:@"image"];
                          } success:^(ASIHTTPRequest *ASIRequest, NSDictionary *object) {
                              WBSuccessNoticeView *notice = [WBSuccessNoticeView successNoticeInView:self.view title:@"Photo Saved Successfully"];
                              [notice show];
+                             
+                             BlockAlertView *alert = [BlockAlertView alertWithTitle:@"info"
+                                                                            message:@"do u want to finished progress now?"];
+                             [alert setCancelButtonWithTitle:@"not yet"
+                                                       block:^{
+                                                       }];
+                             [alert addButtonWithTitle:@"sure"
+                                                 block:^{
+                                                     [self requestToServerEndProgress];
+                                                 }];
+                             [alert show];
+                             
                          } error:^(ASIHTTPRequest *ASIRequest, NSString *errorMsg) {
                              WBSuccessNoticeView *notice = [WBSuccessNoticeView successNoticeInView:self.view title:@"Photo Saved Error"];
                              [notice show];
                          }];
+}
+
+- (void)requestToServerEndProgress
+{
+    NSDate *finishedDate = [NSDate date];
     
-    [picker dismissModalViewControllerAnimated:YES];
+    double timeInSec = [TimeFormatter timeDiffInSec:self.beginDate andEnd:finishedDate];
+    double timeInMin = round(timeInSec / 60.0f);
+    
+    [[API shareObjectManager] post:ADD_PROGRESS
+                         userBlock:^(ASIFormDataRequest *ASIRequest) {
+                             [ASIRequest addPostValue:[NSNumber numberWithDouble:timeInMin] forKey:@"cost_time_min"];
+                             [ASIRequest addPostValue:ENGLISH_PROGRESS_ID forKey:@"plan_id"];
+                         } success:^(ASIHTTPRequest *ASIRequest, NSDictionary *object) {
+                             WBSuccessNoticeView *notice = [WBSuccessNoticeView successNoticeInView:self.view title:@"request Successfully"];
+                             [notice show];
+                             
+                             self.beginDate = nil;
+                             self.progressBeginTimeLabel.text = @"";
+                             
+                         } error:^(ASIHTTPRequest *ASIRequest, NSString *errorMsg) {
+                             WBSuccessNoticeView *notice = [WBSuccessNoticeView successNoticeInView:self.view title:@"add progress Error"];
+                             [notice show];
+                         }];
 }
 
 @end

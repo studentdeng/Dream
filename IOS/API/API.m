@@ -8,6 +8,7 @@
 
 #import "API.h"
 #import "CUFile.h"
+#import "CUResult.h"
 
 @implementation API
 
@@ -33,6 +34,10 @@
 {
     [manager registerMapper:[CUFile getObjectMapping]
                atServerPath:UPLOAD_FILE
+                andJSONPath:@""];
+    
+    [manager registerMapper:[CUResult getObjectMapping]
+               atServerPath:ADD_PROGRESS
                 andJSONPath:@""];
 }
 

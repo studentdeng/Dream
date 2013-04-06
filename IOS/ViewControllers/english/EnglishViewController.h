@@ -14,8 +14,12 @@
 @interface EnglishViewController : UIViewController <MPMediaPickerControllerDelegate, UINavigationControllerDelegate, UIImagePickerControllerDelegate>
 @property (weak, nonatomic) IBOutlet UILabel *songNameLabel;
 @property (weak, nonatomic) IBOutlet UIWebView *webView;
+@property (weak, nonatomic) IBOutlet UIButton *playButton;
+@property (weak, nonatomic) IBOutlet UIButton *captureButton;
+@property (weak, nonatomic) IBOutlet UILabel *progressBeginTimeLabel;
 
 - (IBAction)recentlyClicked:(id)sender;
 - (IBAction)captureClicked:(id)sender;
+- (IBAction)playButtonClicked:(id)sender;
 
 @end

@@ -9,6 +9,7 @@
 #define MAIN_PATH       @"http://192.168.1.200/curer/index.php/api"
 #define EVALUATE_PLAN   @"/progress/evaluate"
 #define UPLOAD_FILE     @"/file/upload"
+#define ADD_PROGRESS    @"/progress/add"
 
 @class CUObjectManager;
 @interface API : NSObject
