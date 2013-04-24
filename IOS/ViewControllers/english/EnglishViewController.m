@@ -23,6 +23,8 @@
 @property (nonatomic, retain) MPMediaItemCollection *recentlyItem;
 @property (nonatomic, retain) NSDate *beginDate;
 
+@property (nonatomic, strong) ASIHTTPRequest *request;
+
 @end
 
 @implementation EnglishViewController
@@ -149,42 +151,31 @@
 }
 
 - (IBAction)captureClicked:(id)sender {
+    if (![UIImagePickerController isSourceTypeAvailable:
+          UIImagePickerControllerSourceTypeCamera]) {
+        
+        //don't have camera
+        UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"alert"
+                                                            message:@"don't have any camera"
+                                                           delegate:nil
+                                                  cancelButtonTitle:@"ok"
+                                                  otherButtonTitles:nil];
+        
+        [alertView show];
+        
+        return;
+    }
     
-    BlockAlertView *alert = [BlockAlertView alertWithTitle:@"info"
-                                                   message:@"have u finished this progress?"];
-    [alert addButtonWithTitle:@"sure"
-                        block:^{
-                            if (![UIImagePickerController isSourceTypeAvailable:
-                                  UIImagePickerControllerSourceTypeCamera]) {
-                                
-                                //don't have camera
-                                UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"alert"
-                                                                                    message:@"don't have any camera"
-                                                                                   delegate:nil
-                                                                          cancelButtonTitle:@"ok"
-                                                                          otherButtonTitles:nil];
-                                
-                                [alertView show];
-                                
-                                return;
-                            }
-                            
-                            UIImagePickerController *picker = [[UIImagePickerController alloc] init];
-                            picker.delegate = self;
-                            picker.sourceType = UIImagePickerControllerSourceTypeCamera;
-                            picker.allowsEditing = NO;
-                            picker.modalTransitionStyle = UIModalTransitionStyleCoverVertical;
-                            [self presentModalViewController:picker animated:YES];
-                        }];
-    
-    [alert setCancelButtonWithTitle:@"not yet"
-                              block:^{
-                                  
-                              }];
-    [alert show];
+    UIImagePickerController *picker = [[UIImagePickerController alloc] init];
+    picker.delegate = self;
+    picker.sourceType = UIImagePickerControllerSourceTypeCamera;
+    picker.allowsEditing = NO;
+    picker.modalTransitionStyle = UIModalTransitionStyleCoverVertical;
+    [self presentModalViewController:picker animated:YES];
 }
 
 - (IBAction)playButtonClicked:(id)sender {
+    
     self.beginDate = [NSDate date];
     self.progressBeginTimeLabel.text = [NSString stringWithFormat:@"start at %@", [TimeFormatter formatTime:self.beginDate]];
 }

@@ -254,6 +254,48 @@
     }];
 }
 
+- (ASIHTTPRequest *)getObjectsRequestAtPath:(NSString *)path
+                                 parameters:(NSDictionary *)parameters
+                                    success:(void (^)(ASIHTTPRequest *ASIRequest, NSArray *objects))success
+                                      error:(void (^)(ASIHTTPRequest *ASIRequest, NSString *errorMsg))errorBlock
+{
+    ASIHTTPRequest *request = [self requestWithPath:path
+                                         parameters:parameters
+                                            success:success
+                                              error:errorBlock];
+    
+    [request setCachePolicy:ASIAskServerIfModifiedWhenStaleCachePolicy];
+    [request setDownloadCache:[ASIDownloadCache sharedCache]];
+    [request setCacheStoragePolicy:ASICachePermanentlyCacheStoragePolicy];
+    
+    return request;
+}
+
+- (ASIHTTPRequest *)getLocalObjectsRequestAt:(NSString *)path
+                                  parameters:(NSDictionary *)parameters
+                                     success:(void (^)(ASIHTTPRequest *, NSArray *))success
+                                       error:(void (^)(ASIHTTPRequest *, NSString *))errorBlock
+{
+    ASIHTTPRequest *request = [self requestWithPath:path
+                                         parameters:parameters
+                                            success:success
+                                              error:errorBlock];
+    
+    [request setDownloadCache:[ASIDownloadCache sharedCache]];
+    [request setCachePolicy:ASIOnlyLoadIfNotCachedCachePolicy | ASIFallbackToCacheIfLoadFailsCachePolicy];
+    [request setCacheStoragePolicy:ASICachePermanentlyCacheStoragePolicy];
+    
+    return request;
+}
+
+- (ASIHTTPRequest *)getSingleObjectRequestAtPath:(NSString *)path
+                                      parameters:(NSDictionary *)parameters
+                                         success:(void (^)(ASIHTTPRequest *, id))success
+                                           error:(void (^)(ASIHTTPRequest *, NSString *))errorBlock
+{
+    return nil;
+}
+
 #pragma mark - private
 
 - (ASIHTTPRequest *)requestWithPath:(NSString *)path

@@ -10,6 +10,28 @@ class Account extends REST_Controller
 {
     public $rest_format = 'json';
     
+/**
+ * The User class is a sample class that holds a single
+ * user instance.
+ *
+ * The constructor of the User class takes a Data Mapper which
+ * handles the user persistence in the database. In this case,
+ * we will provide a fake one.
+ *
+ * @category  MyLibrary
+ * @package   Main
+ * @license   http://www.opensource.org/licenses/BSD-3-Clause
+ * @example   ../index.php
+ * @example <br />
+ * 	$oUser = new MyLibrary\User(new Mappers\UserMapper());<br />
+ *  $oUser->setUsername('swader');<br />
+ *  $aAllEmails = $oUser->getEmails();<br />
+ *  $oUser->addEmail('test@test.com');<br />
+ * @version   0.01
+ * @since     2012-07-07
+ * @author    Bruno Skvorc <bruno@skvorc.me>
+ */
+    
     public function register_post() 
     {
         $this->sessionOut();
@@ -81,7 +103,6 @@ class Account extends REST_Controller
     {
         $this->sessionAuth();
         $user = $this->getAuthUserArray();
-        
         $this->responseSuccess($user);
     }
 }

@@ -13,15 +13,36 @@ class Progress extends REST_Controller
     {
         $inputParam = array('plan_id');
         $paramValues = $this->gets($inputParam);
-        
         $plan_id = $paramValues['plan_id'];
+        
+        $page = $this->get('page');
+        $count = $this->get('count');
+        if (empty($page))
+        {
+            $page = 0;
+        }
+        
+        if (empty($count))
+        {
+            $count = 10;
+        }
         
         $db = $this->load->database('default', TRUE);
         $db->where('plan_id', $plan_id);
+        $db->limit($count, $page * $count);
         $query = $db->get('progress');
+        
+        $db2 = $this->load->database('default', TRUE);
+        $db2->where('plan_id', $plan_id);
+        $queryCount = $db2->get('progress');
+        
         $db->close();
         
-        $this->response(array('list' => $query->result_array()));
+        $this->response(array(
+            'list' => $query->result_array(),
+            'sum' => $queryCount->num_rows()
+            )
+        );
     }
     
     public function add_post()
@@ -70,6 +91,9 @@ class Progress extends REST_Controller
         $finishtime = date('Y-m-d H:i:s');
         
         $timeBegin = strtotime($planCreateTime);
+        $timeBegin = date('Y-m-d', $timeBegin);
+        $timeBegin = strtotime($timeBegin);
+                
         $timeEnd = strtotime($finishtime);
         $diff = $timeEnd - $timeBegin;
         $time_day = $diff / (3600 * 24);
@@ -78,6 +102,7 @@ class Progress extends REST_Controller
         $completeDays = $query->num_rows();
         
         $planName = $planInfo['name'];
+        $expectTime = $planInfo['expect_rate'] * $totalDays;
         
         $time = 0;
         foreach ($query->result_array() as $item) {
@@ -85,6 +110,9 @@ class Progress extends REST_Controller
         }
         
         $time /= 60;
+        $time = round($time, 2);
+        
+        $expectTime = round($expectTime, 2);
         
         $html = "<html>
 <p>计划名称:    $planName</p>
@@ -94,11 +122,20 @@ class Progress extends REST_Controller
 <p>总计时间:    $time 小时</p>
 </html>";
         
+        $html2 = "
+<p>计划名称:    $planName</p>
+<p>创建时间:    $planCreateTime</p>
+<p>总计时间:    $time 小时</p>    
+<p>期望时间:    $expectTime 天</p>
+<p>完成天数:    $completeDays 天</p>
+<p>总计天数:    $totalDays 天</p>";
+        
         $this->response(array(
             'plan'          =>   $planInfo,
             'total_days'    => $totalDays,
             'complete_days' => $completeDays,
-            'html'          => $html
+            'html'          => $html,
+            'html2'         => $html2
         ));
     }
 }
