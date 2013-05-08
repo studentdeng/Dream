@@ -5,11 +5,22 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 // This can be removed if you use __autoload() in config.php OR use Modular Extensions
 require APPPATH . '/libraries/REST_Controller.php';
 
-
 class Plan extends REST_Controller
 {
     public $rest_format = 'json';
     
+
+/**
+*   plan add
+*
+*   @params name          名字
+*   @params description   描述
+*   @example 
+*   {
+*      list : [] 
+*   }
+*/
+
     public function add_post()
     {
         $inputParam = array('name', 'description');

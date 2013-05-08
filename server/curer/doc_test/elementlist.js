@@ -1,3 +1,3 @@
 
 var ApiGen = ApiGen || {};
-ApiGen.elements = [["c","Account"],["c","File"],["c","Plan"],["c","Progress"]];
+ApiGen.elements = [["c","Account"],["c","Event"],["c","File"],["c","Plan"],["c","Progress"]];

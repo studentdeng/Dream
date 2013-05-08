@@ -13,6 +13,10 @@ $(document).ready(function() {
         {
             submitEvaluation();
         }
+        else if (e.target == mainUrl + 'web/#chart')
+        {
+            showChart();
+        }
 
         $(this).tab('show');
     })
@@ -157,6 +161,80 @@ function startPaging()
                 max_page: pageCount,
                 paged: function(page) {
                     loadTable(page - 1);
+                }
+            });
+        },
+        error: function() {
+            alert('error');
+        }
+    });
+}
+
+function showChart()
+{
+    var url = mainUrl + 'index.php/api/progress/analysis?plan_id=2&type=week';
+    $.ajax({
+        url: url,
+        type: "get",
+        async: false,
+        data: {},
+        dataType: "json",
+        success: function(data) {
+            var objectArray = data.list;
+            //var displayArray = new Array();
+            var dataPlan2 = new Array();
+
+            dataPlan2.push(0);
+            for (i in objectArray)
+            {
+                item = objectArray[i];
+                dataPlan2.push(parseInt(item.time));
+                //displayArray.push(item.week);
+            }
+
+            url = mainUrl + 'index.php/api/progress/analysis?plan_id=1&type=week';
+            $.ajax({
+                url: url,
+                type: "get",
+                async: false,
+                data: {},
+                dataType: "json",
+                success: function(data) {
+                    var objectArray = data.list;
+                    var dataPlan1 = new Array();
+                    var displayArray = new Array();
+
+                    for (i in objectArray)
+                    {
+                        item = objectArray[i];
+                        dataPlan1.push(parseInt(item.time));
+                        displayArray.push(item.week);
+                    }
+
+                    var lineChartData = {
+                        labels: displayArray,
+                        datasets: [
+                            {
+                                fillColor: "rgba(220,220,220,0.5)",
+                                strokeColor: "rgba(220,220,220,1)",
+                                pointColor: "rgba(220,220,220,1)",
+                                pointStrokeColor: "#fff",
+                                data: dataPlan2
+                            },
+                            {
+                                fillColor: "rgba(151,187,205,0.5)",
+                                strokeColor: "rgba(151,187,205,1)",
+                                pointColor: "rgba(151,187,205,1)",
+                                pointStrokeColor: "#fff",
+                                data: dataPlan1
+                            }
+                        ]
+                    };
+
+                    var myLine = new Chart(document.getElementById("canvas").getContext("2d")).Line(lineChartData);
+                },
+                error: function() {
+                    alert('error');
                 }
             });
         },

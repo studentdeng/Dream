@@ -9,6 +9,7 @@
         <script type="text/javascript" src="js/jquery.paging.min.js"></script>
         <script type="text/javascript" src="js/jquery.jqpagination.js"></script>
         <script type="text/javascript" src="js/curer.js"></script>
+        <script type="text/javascript" src="js/Chart.js"></script>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <!-- Bootstrap -->
         <link href="css/bootstrap-responsive.min.css" rel="stylesheet" media="screen">
@@ -34,6 +35,7 @@
                 <li><a href="#evaluation" data-toggle="tab">Evaluation</a></li>
                 <li><a href="#progress" data-toggle="tab">Progress</a></li>
                 <li><a href="#event" data-toggle="tab">Event</a></li>
+                <li><a href="#chart" data-toggle="tab">Chart</a></li>
             </ul>
 
             <div class ="tab-content">
@@ -83,6 +85,12 @@
                     </select>
                     <p><input name="name" type="text" placeholder="未完成原因" value id='eventName'></p>
                     <a class="btn btn-success" onclick="event_submitAdd()">add</a>
+                </div>
+
+                <div class="tab-pane" id="chart">
+                    <p><font style="color:rgb(220,220,220)">健身(分钟)</font></p>
+                    <p><font style="color:rgb(151,187,205)">听写(分钟)</font></p>
+                    <canvas id="canvas" height="450" width="650"></canvas>
                 </div>
             </div>
         </div>
