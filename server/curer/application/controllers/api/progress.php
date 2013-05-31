@@ -67,7 +67,29 @@ class Progress extends REST_Controller {
         $query = $db->query($sql, array($paramValues['plan_id']));
         $db->close();
         
-        $this->responseArray($query->result_array());
+        $result = $query->result_array();
+        $timeLabels = array();
+        foreach ($result as $item) {
+            $timeLabels[] = $item['week'];
+        }
+        
+        $container = array();
+        for ($i = 1; $i <= 52; ++$i)
+        {
+            $item = sprintf('2013年-%d周', $i);
+            
+            if (!in_array($item, $timeLabels))
+            {
+                $container[] = array('time' => '0', 'week' => $item);
+            }
+            else
+            {
+                $key = array_search($item, $timeLabels);
+                $container[] = $result[$key];
+            }
+        }
+        
+        $this->responseArray($container);
     }
 
     public function add_post() {

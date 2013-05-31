@@ -202,7 +202,7 @@ if (defined('ENVIRONMENT'))
 
 define('DB_PASSWORD', 'root');
 define('DB_USER', 'root');
-define('DB_HOST', 'localhost');
+define('DB_HOST', '127.0.0.1');
 define('CLIENT_MULTI_RESULTS', 131072);
         
 date_default_timezone_set('PRC');

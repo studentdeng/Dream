@@ -98,8 +98,6 @@ function submitEvaluation() {
 
 function loadTable(page)
 {
-    console.log(page);
-
     var url = mainUrl + 'index.php/api/progress/list?plan_id=1&count=10&page=' + page;
     $.ajax({
         url: url,
@@ -183,8 +181,6 @@ function showChart()
             var objectArray = data.list;
             //var displayArray = new Array();
             var dataPlan2 = new Array();
-
-            dataPlan2.push(0);
             for (i in objectArray)
             {
                 item = objectArray[i];
